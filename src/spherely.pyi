@@ -85,10 +85,10 @@ class _VFunc_Nin1_Nout1(Generic[_NameType, _ScalarReturnType, _ArrayReturnDType]
     @property
     def __name__(self) -> _NameType: ...
     @overload
-    def __call__(self, geography: Geography) -> _ScalarReturnType: ...
+    def __call__(self, geography: Geography, /) -> _ScalarReturnType: ...
     @overload
     def __call__(
-        self, geography: Iterable[Geography]
+        self, geography: Iterable[Geography], /
     ) -> npt.NDArray[_ArrayReturnDType]: ...
 
 class _VFunc_Nin2_Nout1(Generic[_NameType, _ScalarReturnType, _ArrayReturnDType]):
@@ -138,11 +138,11 @@ class _VFunc_Nin1optradius_Nout1(
     def __name__(self) -> _NameType: ...
     @overload
     def __call__(
-        self, a: Geography, radius: float = 6371010.0
+        self, geography: Geography, /, radius: float = 6371010.0
     ) -> _ScalarReturnType: ...
     @overload
     def __call__(
-        self, a: Iterable[Geography], radius: float = 6371010.0
+        self, geography: Iterable[Geography], /, radius: float = 6371010.0
     ) -> npt.NDArray[_ArrayReturnDType]: ...
 
 class _VFunc_Nin1optprecision_Nout1(
@@ -151,10 +151,12 @@ class _VFunc_Nin1optprecision_Nout1(
     @property
     def __name__(self) -> _NameType: ...
     @overload
-    def __call__(self, a: Geography, precision: int = 6) -> _ScalarReturnType: ...
+    def __call__(
+        self, geography: Geography, /, precision: int = 6
+    ) -> _ScalarReturnType: ...
     @overload
     def __call__(
-        self, a: Iterable[Geography], precision: int = 6
+        self, geography: Iterable[Geography], /, precision: int = 6
     ) -> npt.NDArray[_ArrayReturnDType]: ...
 
 # /// End types
@@ -186,16 +188,19 @@ def create_multilinestring(
 def create_polygon(
     shell: None = None,
     holes: None = None,
+    oriented: bool = False,
 ) -> PolygonGeography: ...
 @overload
 def create_polygon(
     shell: Iterable[Sequence[float]],
     holes: Iterable[Iterable[Sequence[float]]] | None = None,
+    oriented: bool = False,
 ) -> PolygonGeography: ...
 @overload
 def create_polygon(
     shell: Iterable[PointGeography],
     holes: Iterable[Iterable[PointGeography]] | None = None,
+    oriented: bool = False,
 ) -> PolygonGeography: ...
 def create_multipolygon(
     polygons: Iterable[PolygonGeography],
@@ -259,28 +264,36 @@ to_wkb: _VFunc_Nin1_Nout1[Literal["to_wkb"], bytes, object]
 
 @overload
 def from_wkt(
-    a: str,
+    geography: str,
+    /,
+    *,
     oriented: bool = False,
     planar: bool = False,
     tessellate_tolerance: float = 100.0,
 ) -> Geography: ...
 @overload
 def from_wkt(
-    a: list[str] | npt.NDArray[np.str_],
+    geography: list[str] | npt.NDArray[np.str_],
+    /,
+    *,
     oriented: bool = False,
     planar: bool = False,
     tessellate_tolerance: float = 100.0,
 ) -> T_NDArray_Geography: ...
 @overload
 def from_wkb(
-    a: bytes,
+    geography: bytes,
+    /,
+    *,
     oriented: bool = False,
     planar: bool = False,
     tessellate_tolerance: float = 100.0,
 ) -> Geography: ...
 @overload
 def from_wkb(
-    a: Iterable[bytes],
+    geography: Iterable[bytes],
+    /,
+    *,
     oriented: bool = False,
     planar: bool = False,
     tessellate_tolerance: float = 100.0,
@@ -297,7 +310,7 @@ class ArrowArrayExportable(Protocol):
 class ArrowArrayHolder(ArrowArrayExportable): ...
 
 def to_geoarrow(
-    input: Geography | T_NDArray_Geography,
+    geographies: Geography | T_NDArray_Geography,
     /,
     *,
     output_schema: ArrowSchemaExportable | str | None = None,
@@ -307,7 +320,7 @@ def to_geoarrow(
     precision: int = 6,
 ) -> ArrowArrayExportable: ...
 def from_geoarrow(
-    input: ArrowArrayExportable,
+    geographies: ArrowArrayExportable,
     /,
     *,
     oriented: bool = False,
