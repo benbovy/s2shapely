@@ -156,15 +156,15 @@ def test_get_x_y() -> None:
         (spherely.create_collection([]), -1),
     ],
 )
-def test_get_dimensions_empty(empty_geog, expected) -> None:
-    assert spherely.get_dimensions(empty_geog) == expected
+def test_get_dimension_empty(empty_geog, expected) -> None:
+    assert spherely.get_dimension(empty_geog) == expected
 
 
-def test_get_dimensions_collection() -> None:
+def test_get_dimension_collection() -> None:
     geog = spherely.create_collection(
         [spherely.create_point(0, 0), spherely.create_polygon([(0, 0), (1, 1), (2, 0)])]
     )
-    assert spherely.get_dimensions(geog) == 2
+    assert spherely.get_dimension(geog) == 2
 
 
 def test_prepare() -> None:
