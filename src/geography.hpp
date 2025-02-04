@@ -7,7 +7,6 @@
 #include <exception>
 #include <memory>
 #include <string>
-#include <type_traits>
 
 namespace py = pybind11;
 namespace s2geog = s2geography;

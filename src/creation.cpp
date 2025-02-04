@@ -12,12 +12,9 @@
 #include <s2geography.h>
 #include <s2geography/geography.h>
 
-#include <array>
-#include <functional>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
-#include <type_traits>
 #include <utility>
 #include <vector>
 
