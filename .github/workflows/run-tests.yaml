@@ -107,3 +107,17 @@ jobs:
           verbose: true
         if: |
           runner.os == 'Linux' && matrix.python-version == '3.11' && matrix.dev == false
+
+  test_with_pixi:
+    name: Tests via pixi
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - uses: prefix-dev/setup-pixi@v0.8.1
+        with:
+          pixi-version: v0.40.1
+          cache: true
+
+      - run: pixi run  --environment test tests
