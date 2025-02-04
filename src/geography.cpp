@@ -223,6 +223,10 @@ std::int8_t get_type_id(PyObjectGeography obj) {
     return static_cast<std::int8_t>(obj.as_geog_ptr()->geog_type());
 }
 
+bool is_empty(PyObjectGeography obj) {
+    return s2geog::s2_is_empty(obj.as_geog_ptr()->geog());
+}
+
 int get_dimension(PyObjectGeography obj) {
     // note: in case of a collection with features of different dimensions:
     // - Geography::dimension() returns -1
@@ -357,7 +361,27 @@ void init_geography(py::module &m) {
 
     )pbdoc");
 
-    m.def("get_dimension", py::vectorize(&get_dimension), py::arg("geography"), R"pbdoc(
+    m.def("is_empty",
+          py::vectorize(&is_empty),
+          py::arg("geography"),
+          py::pos_only(),
+          R"pbdoc(is_empty(geography, /)
+
+        Returns True if the geography object is empty, False otherwise.
+
+        Parameters
+        ----------
+        a : :py:class:`Geography` or array_like
+            Geography object(s).
+
+    )pbdoc");
+
+    m.def("get_dimension",
+          py::vectorize(&get_dimension),
+          py::arg("geography"),
+          py::pos_only(),
+          R"pbdoc(get_dimension(geography, /)
+
         Returns the inherent dimensionality of a geography.
 
         Parameters

@@ -26,10 +26,6 @@ PyObjectGeography convex_hull(PyObjectGeography a) {
     return make_py_geography(s2geog::s2_convex_hull(a_ptr));
 }
 
-bool is_empty(PyObjectGeography a) {
-    return s2geog::s2_is_empty(a.as_geog_ptr()->geog());
-}
-
 double distance(PyObjectGeography a,
                 PyObjectGeography b,
                 double radius = numeric_constants::EARTH_RADIUS_METERS) {
@@ -111,19 +107,6 @@ void init_accessors(py::module& m) {
         -------
         Geography or array
             A single or an array of POLYGON Geography object(s).
-
-    )pbdoc");
-
-    m.def("is_empty",
-          py::vectorize(&is_empty),
-          py::arg("a"),
-          R"pbdoc(
-        Returns True if the geography object is empty, False otherwise.
-
-        Parameters
-        ----------
-        a : :py:class:`Geography` or array_like
-            Geography object
 
     )pbdoc");
 
