@@ -13,15 +13,10 @@
 #include <s2geography/predicates.h>
 #include <s2geography/wkt-writer.h>
 
-#include <cstddef>
 #include <memory>
-#include <optional>
-#include <sstream>
-#include <stdexcept>
 #include <string>
 #include <type_traits>
 #include <utility>
-#include <variant>
 #include <vector>
 
 #include "pybind11.hpp"

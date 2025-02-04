@@ -1,13 +1,10 @@
 #include "projections.hpp"
 
+#include <pybind11/pybind11.h>
 #include <s2/s2projections.h>
 #include <s2geography.h>
 
-#include "geography.hpp"
-#include "pybind11.hpp"
-
 namespace py = pybind11;
-using namespace spherely;
 
 void init_projections(py::module& m) {
     py::class_<Projection> projection(m, "Projection", R"pbdoc(
