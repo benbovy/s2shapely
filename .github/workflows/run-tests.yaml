@@ -45,7 +45,7 @@ jobs:
         run: echo "::set-output name=today::$(/bin/date -u '+%Y%m%d')"
 
       - name: Setup micromamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v2
         with:
           environment-file: ${{ matrix.env }}
           environment-name: spherely-dev
