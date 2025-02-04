@@ -20,6 +20,7 @@ objects without side-effects (except for ``prepare`` and ``destroy_prepared``).
    is_geography
    get_dimension
    get_type_id
+   is_empty
    get_x
    get_y
    is_prepared
