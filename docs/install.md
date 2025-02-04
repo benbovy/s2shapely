@@ -44,24 +44,61 @@ Additional build dependencies:
 - CMake
 - [scikit-build-core](https://github.com/scikit-build/scikit-build-core)
 
+### Cloning the source repository
+
+Spherely's source code can be downloaded by cloning its [source
+repository](https://github.com/benbovy/spherely):
+
+```sh
+$ git clone https://github.com/benbovy/spherely
+$ cd spherely
+```
+
+### Setting up a development environment using pixi
+
+Spherely provides everything needed to manage its dependencies and run common
+tasks via [pixi](https://pixi.sh).
+
+If you have `pixi` installed, you can install a complete development environment
+for your platform simply by executing the following command from Spherely's
+project root directory:
+
+```sh
+$ pixi install --environment all
+```
+
+Running the command below from Spherely's root directory will install all
+required tools and dependencies (if not installed yet) in a local environment,
+build and install Spherely (if needed) and run the tests:
+
+```sh
+$ pixi run tests
+```
+
+All available tasks are detailed in the ``pyproject.toml`` file or listed via
+the following command:
+
+```sh
+$ pixi task list
+```
+
 ### Setting up a development environment using conda
 
-All the requirements listed above are available via conda-forge.
+If you don't have `pixi` installed, you can follow the steps below to manually
+setup a conda environment for developing Spherely.
 
-After cloning Spherely's [source
-repository](https://github.com/benbovy/spherely), create a conda environment
+After cloning Spherely's source repository, create a conda environment
 with the required (and development) dependencies using the
 `ci/environment-dev.yml` file:
 
 ```sh
-$ conda env create -f spherely/ci/environment-dev.yml
+$ conda env create -f ci/environment-dev.yml
 $ conda activate spherely-dev
 ```
 
 Build and install Spherely:
 
 ```sh
-$ cd spherely
 $ python -m pip install . -v --no-build-isolation
 ```
 
