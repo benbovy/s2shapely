@@ -18,7 +18,7 @@ objects without side-effects (except for ``prepare`` and ``destroy_prepared``).
 
    GeographyType
    is_geography
-   get_dimensions
+   get_dimension
    get_type_id
    get_x
    get_y
