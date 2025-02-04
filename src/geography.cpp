@@ -372,7 +372,7 @@ void init_geography(py::module &m) {
 
         Returns
         -------
-        dimensions : int or array
+        int or array
             The inherent dimension is 0 for points, 1 for linestrings and 2 for
             polygons. For geometrycollections it is either the max of the containing
             elements or -1 for empty collections.
