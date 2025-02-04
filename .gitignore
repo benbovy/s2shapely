@@ -138,3 +138,6 @@ compile_commands.json
 # docs
 docs/build/
 docs/_api_generated
+
+# pixi
+.pixi

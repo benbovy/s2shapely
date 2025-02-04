@@ -7,7 +7,6 @@
 #include <exception>
 #include <memory>
 #include <string>
-#include <type_traits>
 
 namespace py = pybind11;
 namespace s2geog = s2geography;
@@ -75,9 +74,9 @@ public:
         return *m_s2geog_ptr;
     }
 
-    template <class T, std::enable_if_t<std::is_base_of_v<s2geog::Geography, T>, bool> = true>
-    inline const T* downcast_geog() const {
-        return dynamic_cast<const T*>(&geog());
+    template <class T>
+    inline const T* cast_geog() const noexcept {
+        return reinterpret_cast<const T*>(&geog());
     }
 
     inline const s2geog::ShapeIndexGeography& geog_index() {
@@ -106,6 +105,9 @@ public:
 
     Geography clone() const;
     std::unique_ptr<s2geog::Geography> clone_geog() const;
+
+    py::tuple encode() const;
+    static Geography decode(const py::tuple& encoded);
 
 private:
     S2GeographyPtr m_s2geog_ptr;

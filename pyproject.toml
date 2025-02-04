@@ -1,7 +1,7 @@
 [build-system]
 requires = [
     "scikit_build_core[rich]",
-    "pybind11",
+    "pybind11>=2.11",
 ]
 build-backend = "scikit_build_core.build"
 
@@ -30,8 +30,79 @@ test = ["pytest>=6.0"]
 
 [tool.scikit-build]
 sdist.exclude = [".github"]
+build-dir = "build/{wheel_tag}"
 
 [tool.mypy]
 files = ["tests", "src/spherely.pyi"]
 show_error_codes = true
 warn_unused_ignores = true
+
+[tool.pixi.project]
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-arm64", "osx-64", "win-64"]
+
+[tool.pixi.environments]
+default = {features = [], solve-group = "default"}
+dev = {features = ["dev"], solve-group = "default"}
+test = {features = ["test", "dev"], solve-group = "default"}
+doc = {features = ["doc", "dev"], solve-group = "default"}
+lint = {features = ["lint", "dev"], solve-group = "default"}
+all = {features = ["lint", "doc", "test", "dev"], solve-group = "default"}
+
+[tool.pixi.dependencies]
+numpy = "*"
+
+[tool.pixi.feature.dev.dependencies]
+cxx-compiler = ">=1.9.0,<2"
+cmake = ">=3.31.5,<4"
+ninja = ">=1.12.1,<2"
+pybind11 = ">=2.13.6,<3"
+scikit-build-core = ">=0.10.7,<0.11"
+s2geometry = ">=0.11.1,<0.12"
+s2geography = ">=0.2.0,<0.3"
+
+[tool.pixi.feature.dev.pypi-dependencies]
+spherely = { path = ".", editable = true }
+
+[tool.pixi.feature.dev.pypi-options]
+no-build-isolation = ["spherely"]
+
+[tool.pixi.feature.test.dependencies]
+pytest = ">=8.3.4,<9"
+geoarrow-pyarrow = ">=0.1.2,<0.2"
+
+[tool.pixi.feature.doc.dependencies]
+sphinx = ">=8.1.3,<9"
+pydata-sphinx-theme = ">=0.16.1,<0.17"
+sphinx-book-theme = ">=1.1.3,<2"
+myst-nb = ">=1.1.2,<2"
+
+[tool.pixi.feature.lint.dependencies]
+pre-commit = ">=4.1.0,<5"
+mypy = ">=1.14.1,<2"
+
+[tool.pixi.feature.test.tasks]
+tests = "pytest tests --color=yes"
+
+[tool.pixi.feature.lint.tasks]
+precommit-install = "pre-commit install"
+mypy = "python -m mypy"
+
+[tool.pixi.feature.doc.tasks]
+build-doc = "sphinx-build -M html docs docs/build"
+
+[tool.pixi.feature.dev.tasks.compile-commands]
+cmd = "cmake -GNinja -S. -Bbuild/compile-commands -DCMAKE_EXPORT_COMPILE_COMMANDS=ON && cp build/compile-commands/compile_commands.json ."
+inputs = ["CMakeLists.txt"]
+outputs = ["compile_commands.json"]
+
+[tool.pixi.feature.dev.tasks.configure]
+cmd = "cmake -GNinja -S. -Bbuild/python -DSKBUILD_PROJECT_NAME=spherely -DSKBUILD_PROJECT_VERSION=0.0.0"
+inputs = ["CMakeLists.txt"]
+outputs = ["build/python/CMakeFiles/"]
+
+[tool.pixi.feature.dev.tasks.compile]
+cmd = "cmake --build build/python --config Debug"
+depends-on = ["configure"]
+inputs = ["src/*"]
+outputs = ["build/python/spherely*"]

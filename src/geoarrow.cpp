@@ -15,6 +15,7 @@ py::array_t<PyObjectGeography> from_geoarrow(py::object input,
                                              bool oriented,
                                              bool planar,
                                              float tessellate_tolerance,
+                                             Projection projection,
                                              py::object geometry_encoding) {
     if (!py::hasattr(input, "__arrow_c_array__")) {
         throw std::invalid_argument(
@@ -33,8 +34,9 @@ py::array_t<PyObjectGeography> from_geoarrow(py::object input,
 
     s2geog::geoarrow::ImportOptions options;
     options.set_oriented(oriented);
+    options.set_projection(projection.s2_projection());
     if (planar) {
-        auto tol = S1Angle::Radians(tessellate_tolerance / EARTH_RADIUS_METERS);
+        auto tol = S1Angle::Radians(tessellate_tolerance / numeric_constants::EARTH_RADIUS_METERS);
         options.set_tessellate_tolerance(tol);
     }
     if (geometry_encoding.is(py::none())) {
@@ -211,7 +213,7 @@ ArrowArrayHolder to_geoarrow(py::array_t<PyObjectGeography> input,
     options.set_precision(precision);
     options.set_projection(projection.s2_projection());
     if (planar) {
-        auto tol = S1Angle::Radians(tessellate_tolerance / EARTH_RADIUS_METERS);
+        auto tol = S1Angle::Radians(tessellate_tolerance / numeric_constants::EARTH_RADIUS_METERS);
         options.set_tessellate_tolerance(tol);
     }
 
@@ -256,16 +258,19 @@ void init_geoarrow(py::module& m) {
     py::class_<ArrowArrayHolder>(m, "ArrowArrayHolder")
         .def("__arrow_c_array__", &ArrowArrayHolder::return_capsules);
 
-    m.def("from_geoarrow",
-          &from_geoarrow,
-          py::arg("input"),
-          py::pos_only(),
-          py::kw_only(),
-          py::arg("oriented") = false,
-          py::arg("planar") = false,
-          py::arg("tessellate_tolerance") = 100.0,
-          py::arg("geometry_encoding") = py::none(),
-          R"pbdoc(
+    m.def(
+        "from_geoarrow",
+        &from_geoarrow,
+        py::arg("geographies"),
+        py::pos_only(),
+        py::kw_only(),
+        py::arg("oriented") = false,
+        py::arg("planar") = false,
+        py::arg("tessellate_tolerance") = 100.0,
+        py::arg("projection") = Projection::lnglat(),
+        py::arg("geometry_encoding") = py::none(),
+        R"pbdoc(from_geoarrow(geographies, /, *, oriented=False, planar=False, tessellate_tolerance=100.0, projection=spherely.Projection.lnglat(), geometry_encoding=None)
+
         Create an array of geographies from an Arrow array object with a GeoArrow
         extension type.
 
@@ -279,7 +284,7 @@ void init_geoarrow(py::module& m) {
 
         Parameters
         ----------
-        input : pyarrow.Array, Arrow array
+        geographies : pyarrow.Array, Arrow array
             Any array object implementing the Arrow PyCapsule Protocol
             (i.e. has a ``__arrow_c_array__`` method). The type of the array
             should be one of the geoarrow geometry types.
@@ -301,6 +306,10 @@ void init_geoarrow(py::module& m) {
             The maximum distance in meters that a point must be moved to
             satisfy the planar edge constraint. This is only used if `planar`
             is set to True.
+        projection : spherely.Projection, default Projection.lnglat()
+            The projection of the input coordinates. By default, it assumes
+            longitude/latitude coordinates, but this option allows to convert
+            from coordinates in pseudo-mercator or orthographic projection as well.
         geometry_encoding : str, default None
             By default, the encoding is inferred from the GeoArrow extension
             type of the input array.
@@ -308,19 +317,27 @@ void init_geoarrow(py::module& m) {
             Arrow array without geoarrow type but with a plain string or
             binary type, if specifying this keyword with "WKT" or "WKB",
             respectively.
+
+        Returns
+        -------
+        Geography or array
+            An array of geography objects.
+
     )pbdoc");
 
-    m.def("to_geoarrow",
-          &to_geoarrow,
-          py::arg("input"),
-          py::pos_only(),
-          py::kw_only(),
-          py::arg("output_schema") = py::none(),
-          py::arg("projection") = Projection::lnglat(),
-          py::arg("planar") = false,
-          py::arg("tessellate_tolerance") = 100.0,
-          py::arg("precision") = 6,
-          R"pbdoc(
+    m.def(
+        "to_geoarrow",
+        &to_geoarrow,
+        py::arg("geographies"),
+        py::pos_only(),
+        py::kw_only(),
+        py::arg("output_schema") = py::none(),
+        py::arg("projection") = Projection::lnglat(),
+        py::arg("planar") = false,
+        py::arg("tessellate_tolerance") = 100.0,
+        py::arg("precision") = 6,
+        R"pbdoc(to_geoarrow(geographies, /, *, output_schema=None, projection=spherely.Projection.lnglat(), planar=False, tessellate_tolerance=100.0, precision=6)
+
         Convert an array of geographies to an Arrow array object with a GeoArrow
         extension type.
 
@@ -328,8 +345,8 @@ void init_geoarrow(py::module& m) {
 
         Parameters
         ----------
-        input : array_like
-            An array of geography objects.
+        geographies : array_like
+            An array of :py:class:`~spherely.Geography` objects.
         output_schema : Arrow schema, pyarrow.DataType, pyarrow.Field, default None
             The geoarrow extension type to use for the output. This can indicate
             one of the native geoarrow types (e.g. "point", "linestring", "polygon",
@@ -361,7 +378,7 @@ void init_geoarrow(py::module& m) {
         Returns
         -------
         ArrowArrayHolder
-            A generic Arrow array object with geograhies encoded to GeoArrow.
+            A generic Arrow array object with geographies encoded to GeoArrow.
 
         Examples
         --------
